@@ -9,14 +9,10 @@ class Message
 	public:
 		std::string kind;
 		int source; // sending node
-		int origin; // where the msg first generated, used for broadcast - convergecast
-		int destination; // receiving node
+		int timestamp; // Lamport style timestamp
+		//int destination; // receiving node
 		
-		std::string contents;
-
-		Message();
-		Message(std::string kind);
-		Message(std::string kind, std::string contents);
+		Message(std::string kind, int source,  int timestamp);
 
 		std::string To_String();
 		

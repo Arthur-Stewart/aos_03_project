@@ -1,33 +1,51 @@
 #include "mutex_service.h"
 
-Mutex_Service::Mutex_Service(int node_id, int num_nodes) : node_id(node_id), num_nodes(num_nodes)
+Mutex_Service::Mutex_Service(int node_id, int num_nodes) : node_id(node_id), num_nodes(num_nodes), num_keys(0), requesting_cs(false)
 {
 	Generate_Keys();
 }
 
 void Mutex_Service::Generate_Keys()
 {
+	keys = std::vector<int>(num_nodes, 0);
 	// Depends on if you have nodes starting at zero
-	for (int i = node_id + 1; i < num_nodes; ++i)
+	
+	for (int i = node_id; i < num_nodes; ++i)
 	{
-		//std::cerr << "Adding key: " << i << std::endl;
-		keys.emplace_back(i);
+		Add_Key(i);
 	}
 } 
 
-size_t Mutex_Service::Num_Keys()
+void Mutex_Service::Add_Key(int value)
 {
-	return keys.size();
+	keys[value] = 1;
+	++num_keys;
 }
-	
-		
+
+void Mutex_Service::Remove_Key(int value)
+{
+	if (keys[value] == 0)
+	{
+		std::cout << "Could not remove key" << std::endl;
+		return;
+	}
+	else
+	{
+		keys[value] = 0;
+		--num_keys;
+	}
+}
+
 void Mutex_Service::Print_Keys()
 {
 	std::cout << "KEYS: ";
-	for (const auto& k: keys)
+	for (int i = 0; i < num_nodes; ++i)
 	{
-		std::cout << k << " ";
+		if (keys[i])
+		{
+			std::cout << i << " ";
+		}
 	}
 	std::cout << std::endl;
-	std::cout << "Number of keys: " << Num_Keys() << std::endl;
+	std::cout << "Number of keys: " << num_keys << std::endl;
 }

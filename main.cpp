@@ -26,7 +26,6 @@
 // Exerimental results
 // Make plots
 
-
 int main(int argc, char** argv)
 {
 	if(argc != 3)
@@ -45,11 +44,13 @@ int main(int argc, char** argv)
 
 	s1.mutex_service.Print_Keys();
 
-	//std::thread t1(&Server::Listen, s1);
+	std::thread t1(&Server::Listen, s1);
+	sleep(3); // To let all servers get setup
 
-	//sleep(3); // To let all servers get setup
-
-	//t1.join();
+	// Have each server start application
+	s1.Start_Simulation();
+	
+	t1.join();
 	
 }
 

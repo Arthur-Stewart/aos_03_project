@@ -16,9 +16,10 @@ void Parser::Parse_Config()
 				std::istringstream iss(line);
 				std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},std::istream_iterator<std::string>{}};
 				num_nodes = std::stoi(tokens[0]);
-				int mean_inter_request_delay = std::stoi(tokens[1]);
-				int mean_cs_execution_time = std::stoi(tokens[2]);
-				int num_of_cs_requests = std::stoi(tokens[3]);
+				mean_inter_request_delay = std::stoi(tokens[1]);
+				mean_cs_execution_time = std::stoi(tokens[2]);
+				num_of_cs_requests = std::stoi(tokens[3]);
+
 			}
 			// First n
 			else if (line_num < num_nodes + 1)
