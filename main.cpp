@@ -41,14 +41,18 @@ int main(int argc, char** argv)
 	std::cout << process_node << std::endl;
 
 	Server s1(process_node, p1);
+	//s1.testing = true;
 
-	s1.mutex_service.Print_Keys();
+	//s1.mutex_service.Print_Keys();
+
+	//s1.Listen();
 
 	std::thread t1(&Server::Listen, s1);
+	
 	sleep(3); // To let all servers get setup
 
 	// Have each server start application
-	s1.Start_Simulation();
+	//s1.Start_Simulation();
 	
 	t1.join();
 	
