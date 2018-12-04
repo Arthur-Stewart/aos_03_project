@@ -70,6 +70,8 @@ class Server
 		bool finished;
 		bool all_finished;
 
+		int num_messages;
+
 		unsigned long int delay;
 		std::chrono::high_resolution_clock::time_point timer;
 

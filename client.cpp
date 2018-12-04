@@ -102,13 +102,18 @@ int Client::SendMessage(Message out)
 	// Size of buffer should really be size of msg + 1 
 	char buffer[2048]; 
     strcpy(buffer, msg);  
+
 	int msg_rtn = write(sockfd,buffer,strlen(buffer)); // Send the message to neighbors 
 
 	if (msg_rtn == 0)
 	{
 		return 1;
 	}
-	memset(buffer, 0, 1024); // reset buffer
+	else
+	{
+		//std::cout << "Message Send Failed" << std::endl;
+	}
+	memset(buffer, 0, 2048); // reset buffer
 
 	return 0;  
 

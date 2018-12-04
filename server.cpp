@@ -31,8 +31,8 @@ void Server::ProcessMessage(const char* buffer)
 	{
 		if (mutex_service.requesting_cs)
 		{
-			std::cout << "Rcvd req ts: " << timestamp << " from " << source << std::endl;
-			std::cout << "Own req ts: " << mutex_service.request_timestamp << std::endl;
+			//std::cout << "Rcvd req ts: " << timestamp << " from " << source << std::endl;
+			//std::cout << "Own req ts: " << mutex_service.request_timestamp << std::endl;
 		}
 		//std::cout << "Recieved Request " << source << " with timestamp " << timestamp << std::endl;
 		// If requesting critical section 
@@ -42,7 +42,7 @@ void Server::ProcessMessage(const char* buffer)
 			if (mutex_service.request_timestamp < timestamp)
 			{
 				// Defer
-				std::cout << "Defer" << std::endl;
+				//std::cout << "Defer" << std::endl;
 				mutex_service.deferred.emplace(source);
 			}
 			else if (mutex_service.request_timestamp == timestamp)
@@ -51,20 +51,20 @@ void Server::ProcessMessage(const char* buffer)
 				if (serv.node_id < source)
 				{
 					// Defer
-					std::cout << "Defer" << std::endl;
+					//std::cout << "Defer" << std::endl;
 					mutex_service.deferred.emplace(source);
 				}
 				else
 				{
 					mutex_service.Remove_Key(source);
-					Message_Handler("Reply", source, lamport_clock);
+					Message_Handler("Forward", source, lamport_clock);
 				}
 			}
 			else
 			{
 				// Reply
 				mutex_service.Remove_Key(source);
-				Message_Handler("Reply", source, lamport_clock);
+				Message_Handler("Forward", source, lamport_clock);
 			}
 		}
 		// Reply
@@ -75,11 +75,15 @@ void Server::ProcessMessage(const char* buffer)
 		}
 
 	}
-	if (kind == "Reply")
+	if (kind == "Reply"  || kind == "Forward")
 	{
 		//lamport_clock = std::max(timestamp, lamport_clock) + 1;
 		//std::cout << "Received Reply " << source << std::endl;
 		mutex_service.Add_Key(source);
+		if (kind == "Forward")
+		{
+			mutex_service.deferred.emplace(source);	
+		}
 		// If you receieved a reply message then it was because you have an outstanding critical section request
 		// You should check this property for debug
 		if (!mutex_service.requesting_cs)
@@ -93,10 +97,12 @@ void Server::ProcessMessage(const char* buffer)
 	}
 	if (kind == "Finished")
 	{
-		std::cout << "Finished msg: " << (num_finished + 1) << std::endl;
+		++num_finished;
+		std::cout << "Finished msg: " << num_finished << std::endl;
 		//mutex_service.Print_Keys();
-		if (++num_finished == num_nodes)
+		if (num_finished == num_nodes)
 		{
+			std::cout << "All finished" << std::endl;
 			all_finished = true;
 		}
 	}
@@ -113,10 +119,9 @@ void Server::CS_Request()
 	mutex_service.request_timestamp = ++lamport_clock;
 	mutex_service.requesting_cs = true;
 	
-	std::cout << "Req CS : " << mutex_service.request_timestamp << std::endl;
-	mutex_service.Print_Keys();
+	//std::cout << "Req CS : " << mutex_service.request_timestamp << std::endl;
+	//mutex_service.Print_Keys();
 	//std::cout << "Completed requests: " << cs_requests_completed << std::endl;
-
 	
 	if (testing)
 	{
@@ -171,12 +176,12 @@ void Server::CS_Leave()
 
 	++lamport_clock;
 	++cs_requests_completed;
-	std::cout << "Leaving CS" << std::endl;
+	std::cout << "Leaving CS: " << cs_requests_completed << std::endl; 
 	//mutex_service.Print_Keys();
 	mutex_service.requesting_cs = false;
 	while (!mutex_service.deferred.empty())
 	{
-		std::cout << "Sending deferred keys" << std::endl;
+		//std::cout << "Sending deferred keys" << std::endl;
 		int source = mutex_service.deferred.front(); 
 		mutex_service.Remove_Key(source);
 		Message_Handler("Reply", source, lamport_clock);
@@ -261,7 +266,7 @@ int Server::Listen()
 
 		if(cs_requests_completed == num_of_cs_requests && !finished)
 		{
-			std::cout << "Finished " << cs_requests_completed << " requests" << std::endl;
+			std::cout << "Finished" << std::endl;
 			finished = true;
 			++num_finished;
 			//mutex_service.Print_Keys();
@@ -291,10 +296,12 @@ int Server::Listen()
 		}
 		else
 		{
+
 			sin_size = sizeof their_addr;
 			newsockfd= accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
 			if (newsockfd == -1) 
 			{
+				std::cout << "Accept error" << std::endl;
 				perror("accept");
 				continue;
 			}
@@ -306,13 +313,25 @@ int Server::Listen()
 			{
 				ProcessMessage(buffer);
 			} 
+			else
+			{
+				std::cout << "Read error" << std::endl;
+			}
 
 			close(newsockfd);
 		}
-		
+
+		//std::cout << "all_finished " << all_finished << std::endl;
 
 	}  // end server
 	sleep(2);
+
+	std::ofstream of;
+	std::string file_name = std::to_string(serv.node_id) + "n_fin.txt";
+	of.open(file_name);
+
+	of << num_messages << std::endl;
+
 	if (testing)
 	{
 		std::ofstream out;
@@ -336,8 +355,10 @@ void Server::Message_Handler(std::string type, int destination, int timestamp)
 	//++lamport_clock;
 	//
 	//mutex_service.Print_Keys();
+	
+	++num_messages;
 
-	std::cout << "Send: " << type << " to " << destination << std::endl;
+	//std::cout << "Send: " << type << " to " << destination << std::endl;
 
 	if (testing)
 	{
@@ -375,7 +396,8 @@ Server::Server(Node& serv, Parser& parser) : serv(serv), node_map(parser.node_ma
 		mean_cs_execution_time(parser.mean_cs_execution_time), 
 		num_of_cs_requests(parser.num_of_cs_requests), 
 		cs_requests_completed(0), lamport_clock(0), 
-		num_finished(0), finished(false), all_finished(false), v_clock(parser.num_nodes, 0)
+		num_finished(0), finished(false), all_finished(false), 
+		v_clock(parser.num_nodes, 0), num_messages(0)
 {
 	mutex_service = Mutex_Service(serv.node_id, num_nodes);
 	cs_execution_time =  std::exponential_distribution<>(parser.mean_cs_execution_time);
