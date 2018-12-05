@@ -361,6 +361,7 @@ int Server::Listen()
 			long unsigned int duration = std::chrono::duration_cast<std::chrono::nanoseconds>(t2-timer).count();
 			if (duration > delay)
 			{
+				timer = t2; // update timer, else it will send multiple consecutive request.
 				CS_Request();
 			}
 		}
