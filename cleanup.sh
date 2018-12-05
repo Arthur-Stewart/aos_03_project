@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Change this to your netid
-netid=acs170004
+netid=klh170130
 
 # Root directory of your project
 
-CONFIGLOCAL=$HOME/Computer_Science/Courses/UTD/Advanced_Operating_Systems/Homework/03_Project/Config_Files/config.txt
+CONFIGLOCAL=$HOME/03_Project/Config_Files/cleanup.txt
 
 n=0
 
@@ -21,7 +21,7 @@ cat $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
         host=$( echo $line | awk '{ print $2 }' )
         port=$( echo $line | awk '{ print $3 }' )
         echo $host
-        urxvt -e sh -c "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host.utdallas.edu killall -u $netid" &
+        gnome-terminal -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host.utdallas.edu killall -u $netid" &
         sleep 1
 
         n=$(( n + 1 ))

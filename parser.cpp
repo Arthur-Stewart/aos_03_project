@@ -3,6 +3,8 @@
 Parser::Parser(const std::string config) : config(config), line_num(0), num_nodes(0)
 {}
 
+using namespace std;
+
 void Parser::Parse_Config()
 {
 	std::ifstream in(config);
@@ -29,6 +31,7 @@ void Parser::Parse_Config()
 				int node_id = std::stoi(tokens[0]);
 				std::string host = tokens[1] + ".utdallas.edu";
 				std::string port = tokens[2];
+				// std::cout << "parser: " << line_num << " | " << node_id << endl;
 				node_map[node_id] = Node(node_id, host, port);
 			}
 			

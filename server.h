@@ -35,10 +35,19 @@
 #include <thread>
 #include <vector>
 
+// old POSIX libs
+#include <semaphore.h>
+#include <pthread.h>
+#include <fcntl.h>
+
+using namespace std;
+
 #define BACKLOG 100000 // how many pending connections queue will hold
 
 // APPLICATION SERVICE
 // MUTUAL EXCLUSION SERVICE
+
+
 
 class Server
 {
@@ -62,8 +71,22 @@ class Server
 		int mean_inter_request_delay;
 		int mean_cs_execution_time;
 		int num_of_cs_requests;
+		int cs_requests_completed;
 		int lamport_clock;
 		Mutex_Service mutex_service;
+
+		int num_finished;	
+		bool finished;
+		bool all_finished;
+
+		int num_messages;
+
+		unsigned long int delay;
+		std::chrono::high_resolution_clock::time_point timer;
+
+		//Testing correctness
+		std::vector<int> v_clock;
+		std::vector<std::vector<int>> log;
 
 		//std::random_device rd;
 		std::exponential_distribution<> inter_request_delay;
@@ -73,13 +96,20 @@ class Server
 		//Constructor 
 		Server(Node& serv, Parser& parser);
 		
+		sem_t csEnterSem;
+		bool appRequestCs;
+		bool appInCs;
 		void Start_Simulation();
 		void CS_Request();
 		void CS_Execute();
+		void CS_Enter();
 		void CS_Leave();
 
 		void ProcessMessage(const char* buffer);
 		void Message_Handler(std::string type, int destination, int timestamp);
+		//TESTING	
+		//void Message_Handler(std::string type, int destination, int timestamp, std::vector<int> vector_timestamp);
+		bool testing;
 		
 		int Listen();
 		

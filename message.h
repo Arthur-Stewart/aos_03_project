@@ -12,7 +12,11 @@ class Message
 		int timestamp; // Lamport style timestamp
 		//int destination; // receiving node
 		
+		std::vector<int> vector_timestamp;
+		
 		Message(std::string kind, int source,  int timestamp);
+
+		Message(std::string kind, int source,  int timestamp, std::vector<int> vector_timestamp);
 
 		std::string To_String();
 		

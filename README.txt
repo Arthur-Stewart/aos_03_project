@@ -6,4 +6,4 @@ Group Members:
 	Khoa Ho netid: klh170130
 
 to compile this project use make or run:
-g++ -std=c++11 -pthread main.cpp node.cpp parser.cpp server.cpp client.cpp message.cpp -o main 
+g++ -std=c++11 -pthread main.cpp node.cpp parser.cpp server.cpp client.cpp message.cpp mutex_service.cpp -o main 

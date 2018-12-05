@@ -1,13 +1,13 @@
 #!/bin/bash
 
-netid=acs170004
+netid=klh170130
 
 # Root directory of your project
 PROJDIR=03_Project
 
 CONFIGLOCAL=$HOME/Computer_Science/Courses/UTD/Advanced_Operating_Systems/Homework/$PROJDIR/Config_Files/config.txt
 
-CONFIGREMOTE=$PROJDIR/Config_Files/config.txt 
+CONFIGREMOTE=$PROJDIR/Config_Files/six.txt 
 
 # Your executable binary 
 PROG=main
@@ -30,7 +30,7 @@ cat $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
 		#echo $host.utdallas.edu
 		#echo $port
 	
-	urxvt -e sh -c "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host.utdallas.edu ./$PROJDIR/$PROG $CONFIGREMOTE $nodeid; exec bash" &
+	gnome-terminal -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host.utdallas.edu ./$PROJDIR/$PROG $CONFIGREMOTE $nodeid; exec bash" &
 
         n=$(( n + 1 ))
     done

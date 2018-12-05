@@ -15,8 +15,7 @@
 //		if (numsec <= MAXSLEEP / 2)
 //		{
 //			sleep(numsec)
-//		}
-//	}
+//		} //	}
 //	return (-1);
 //}
 
@@ -46,11 +45,27 @@ Client::Client(const Node& src, const Node& dest) : dest(dest), src(src)
 			continue;
 		}
 
-		while(connect(sockfd, p->ai_addr, p->ai_addrlen) != 0)
+		bool connected = false;
+
+		int numsec = 1;
+		
+		while(!connected)
 		{
-			// Loop for connection 
-			// There has to be a better way
+			if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0)
+			{
+				connected = true;	
+			}
+			else
+			{
+				sleep(numsec);
+			}
 		}
+
+		//while(connect(sockfd, p->ai_addr, p->ai_addrlen) != 0)
+		//{
+		//	// Loop for connection 
+		//	// There has to be a better way
+		//}
 
 		//if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1)
 		//{
@@ -85,15 +100,20 @@ int Client::SendMessage(Message out)
 	const char* msg = out.To_String().c_str();
 
 	// Size of buffer should really be size of msg + 1 
-	char buffer[1024]; 
+	char buffer[2048]; 
     strcpy(buffer, msg);  
+
 	int msg_rtn = write(sockfd,buffer,strlen(buffer)); // Send the message to neighbors 
 
 	if (msg_rtn == 0)
 	{
 		return 1;
 	}
-	memset(buffer, 0, 1024); // reset buffer
+	else
+	{
+		//std::cout << "Message Send Failed" << std::endl;
+	}
+	memset(buffer, 0, 2048); // reset buffer
 
 	return 0;  
 

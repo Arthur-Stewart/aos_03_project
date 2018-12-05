@@ -1,6 +1,6 @@
 #include "mutex_service.h"
 
-Mutex_Service::Mutex_Service(int node_id, int num_nodes) : node_id(node_id), num_nodes(num_nodes), num_keys(0), requesting_cs(false)
+Mutex_Service::Mutex_Service(int node_id, int num_nodes) : node_id(node_id), num_nodes(num_nodes), num_keys(0), requesting_cs(false), request_timestamp(0)
 {
 	Generate_Keys();
 }
@@ -48,4 +48,10 @@ void Mutex_Service::Print_Keys()
 	}
 	std::cout << std::endl;
 	std::cout << "Number of keys: " << num_keys << std::endl;
+}
+
+
+bool Mutex_Service::Can_Execute_CS()
+{
+	return num_keys == num_nodes;
 }
